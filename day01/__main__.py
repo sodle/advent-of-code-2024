@@ -14,16 +14,16 @@ def read_lists() -> tuple[list[int], list[int]]:
 def part1(left: list[int], right: list[int]) -> int:
     pairs = zip(sorted(left), sorted(right))
     result = 0
-    for l, r in pairs:
-        result += abs(l-r)
+    for lhs, rhs in pairs:
+        result += abs(lhs - rhs)
     return result
 
 
 def part2(left: list[int], right: list[int]) -> int:
     result = 0
-    for l in left:
-        r = len([n for n in right if n==l])
-        result += l*r
+    for lhs in left:
+        rhs = len([n for n in right if n == lhs])
+        result += lhs * rhs
     return result
 
 
