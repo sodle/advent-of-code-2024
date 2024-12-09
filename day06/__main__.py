@@ -1,6 +1,5 @@
 import sys
 import math
-import itertools
 
 
 Coordinate = tuple[int, int]
@@ -54,8 +53,25 @@ def part2(
 ) -> int:
     height, width = dimensions
 
+    y, x = guard_position
+    og_visited = set()
+
+    orientation = math.pi / 2  # guard starts facing up
+
+    while x in range(width) and y in range(height):
+        og_visited.add((y, x))
+
+        look_x = x + int(math.cos(orientation))
+        look_y = y - int(math.sin(orientation))
+
+        if (look_y, look_x) in obstacles:
+            orientation -= math.pi / 2
+        else:
+            x = look_x
+            y = look_y
+
     viable_obstacles = set()
-    for new_obstacle in itertools.product(range(height), range(width)):
+    for new_obstacle in og_visited:
         if new_obstacle in obstacles or new_obstacle == guard_position:
             continue
 
