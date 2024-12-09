@@ -8,6 +8,9 @@ class File:
         self.start = start
         self.size = size
 
+    def copy(self) -> "File":
+        return File(self.id, self.start, self.size)
+
     def __repr__(self):
         return f"file {self.id} - start {self.start} - size {self.size}"
 
@@ -17,7 +20,10 @@ class Disk(NamedTuple):
     blanks: list[File]
 
     def copy(self) -> "Disk":
-        return Disk(self.files.copy(), self.blanks.copy())
+        return Disk(
+            [file.copy() for file in self.files],
+            [blank.copy() for blank in self.blanks],
+        )
 
     def __repr__(self):
         size = sum([f.size for f in self.files] + [b.size for b in self.blanks])
@@ -34,27 +40,7 @@ class Disk(NamedTuple):
         return "".join(r)
 
 
-def read_disk() -> list[int]:
-    disk = []
-
-    input_string = sys.stdin.read().strip()
-
-    file_id = 0
-    blank = False
-
-    for digit in input_string:
-        if blank:
-            disk += [-1] * int(digit)
-            file_id += 1
-        else:
-            disk += [file_id] * int(digit)
-
-        blank = not blank
-
-    return disk
-
-
-def read_disk_2pt0() -> Disk:
+def read_disk() -> Disk:
     disk = Disk(files=[], blanks=[])
 
     input_string = sys.stdin.read().strip()
@@ -74,22 +60,7 @@ def read_disk_2pt0() -> Disk:
     return disk
 
 
-def part1(disk: list[int]) -> int:
-    while -1 in disk:
-        if disk[-1] == -1:
-            disk.pop()
-        else:
-            blank_index = disk.index(-1)
-            disk[blank_index] = disk.pop()
-
-    acc = 0
-    for position, file_id in enumerate(disk):
-        acc += position * file_id
-
-    return acc
-
-
-def part1_2pt0(disk: Disk) -> int:
+def part1(disk: Disk) -> int:
     while len(disk.blanks) > 0:
         first_blank = disk.blanks[0]
         last_blank = disk.blanks[-1]
@@ -122,6 +93,37 @@ def part1_2pt0(disk: Disk) -> int:
     return acc
 
 
+def part2(disk: Disk) -> int:
+    for file in reversed(disk.files):
+        fitting_blanks = [
+            blank
+            for blank in disk.blanks
+            if blank.size >= file.size and blank.start < file.start
+        ]
+        if len(fitting_blanks) == 0:
+            continue
+
+        original_start = file.start
+
+        blank = fitting_blanks[0]
+        file.start = blank.start
+        blank.size -= file.size
+        blank.start += file.size
+
+        if blank.size == 0:
+            disk.blanks.pop(disk.blanks.index(blank))
+
+        disk.blanks.append(File(-1, original_start, file.size))
+
+    acc = 0
+    for file in disk.files:
+        for n in range(file.size):
+            acc += file.id * (file.start + n)
+
+    return acc
+
+
 if __name__ == "__main__":
-    disk = read_disk_2pt0()
-    print(f"Part 1:\t{part1_2pt0(disk.copy())}")
+    disk = read_disk()
+    print(f"Part 1:\t{part1(disk.copy())}")
+    print(f"Part 2:\t{part2(disk.copy())}")

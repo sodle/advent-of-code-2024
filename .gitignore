@@ -177,3 +177,5 @@ pyrightconfig.json
 
 # puzzle input
 input.txt
+
+.DS_Store
