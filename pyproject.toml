@@ -12,6 +12,7 @@ aockit = "^1.0.2"
 networkx = "^3.4.2"
 matplotlib = "^3.9.3"
 scipy = "^1.14.1"
+ortools = "^9.11.4210"
 
 
 [build-system]
